@@ -83,13 +83,16 @@ namespace ACFramework
             than having some very half-way kinds of acceleration effects, I go aheand and
             set acceleration to 0.0 in here. */
             pcritter.Acceleration = new cVector3(0.0f, 0.0f, 0.0f);
-
             bool left = Framework.Keydev[vk.Left];
             bool right = Framework.Keydev[vk.Right];
             bool up = Framework.Keydev[vk.Up];
             bool down = Framework.Keydev[vk.Down];
             bool pageup = Framework.Keydev[vk.PageUp];
             bool pagedown = Framework.Keydev[vk.PageDown];
+            bool W = Framework.Keydev[vk.W];
+            bool A = Framework.Keydev[vk.A];
+            bool S = Framework.Keydev[vk.S];
+            bool D = Framework.Keydev[vk.D];
             if (!left && !right && !down && !up && !pagedown && !pageup)
             {
                 pcritter.Velocity = new cVector3(0.0f, 0.0f, 0.0f);
@@ -101,14 +104,18 @@ namespace ACFramework
                 pcritter.Velocity = new cVector3(-pcritter.MaxSpeed, 0.0f, 0.0f);
             if (right)
                 pcritter.Velocity = new cVector3(pcritter.MaxSpeed, 0.0f, 0.0f);
-            if (down)
+            if (down || S)
                 pcritter.Velocity = new cVector3(0.0f, -pcritter.MaxSpeed, 0.0f);
-            if (up)
+            if (up || W)
                 pcritter.Velocity = new cVector3(0.0f, pcritter.MaxSpeed, 0.0f);
             if (pagedown)
                 pcritter.Velocity = new cVector3(0.0f, 0.0f, -pcritter.MaxSpeed);
             if (pageup)
                 pcritter.Velocity = new cVector3(0.0f, 0.0f, pcritter.MaxSpeed);
+            if (A)
+                pcritter.Velocity = new cVector3(0.0f, -pcritter.MaxSpeed, 0.0f);
+            if (D)
+                pcritter.Velocity = new cVector3(0.0f, pcritter.MaxSpeed, 0.0f);
             //Now match the attitude.
             if (pcritter.AttitudeToMotionLock)
                 /* Need this condition if you want
@@ -340,18 +347,24 @@ namespace ACFramework
             bool inreverse = false; //Only set TRUE if currently pressing VK_DOWN 
             bool left = Framework.Keydev[vk.Left];
             bool right = Framework.Keydev[vk.Right];
-            bool up = Framework.Keydev[vk.Up];
-            bool down = Framework.Keydev[vk.Down];
+            bool up = Framework.Keydev[vk.Up] || Framework.Keydev[vk.W];
+            bool down = Framework.Keydev[vk.Down] || Framework.Keydev[vk.S];
             bool pageup = Framework.Keydev[vk.PageUp];
             bool pagedown = Framework.Keydev[vk.PageDown];
+            bool strafeLeft = Framework.Keydev[vk.A];
+            bool strafeRight = Framework.Keydev[vk.D];
             if (!_hopping && up)
                 pcritter.Velocity = pcritter.AttitudeTangent.mult(pcritter.MaxSpeed);
-            if (!_hopping && down)
+            if (!_hopping && down )
             {
                 pcritter.Velocity = pcritter.AttitudeTangent.mult(-pcritter.MaxSpeed);
                 inreverse = true;
             }
-            if (!up && !down)
+            if (!_hopping && strafeLeft)
+                pcritter.Velocity = new cVector3(-pcritter.MaxSpeed, pcritter.Velocity.Y, pcritter.Velocity.Z);
+            if (!_hopping && strafeRight)
+                pcritter.Velocity = new cVector3(pcritter.MaxSpeed, pcritter.Velocity.Y, pcritter.Velocity.Z);
+            if (!up && !down && !strafeLeft && !strafeRight)
                 pcritter.Velocity = new cVector3(0.0f, 0.0f, 0.0f);
 
             //Now restore the y velocity.
