@@ -328,7 +328,7 @@ namespace ACFramework
             _falling = false;
         }
 
-        public override void listen(float dt, cCritter pcritter)
+         public override void listen(float dt, cCritter pcritter)
         {
             cKeyInfo pcontroller = Framework.Keydev;
             /* Note that since I set the velocity to 0.0 when I'm not
@@ -354,19 +354,23 @@ namespace ACFramework
             bool strafeLeft = Framework.Keydev[vk.A];
             bool strafeRight = Framework.Keydev[vk.D];
             if (!_hopping && up)
-                pcritter.Velocity = pcritter.AttitudeTangent.mult(pcritter.MaxSpeed);
+                ForwardBackDirection = pcritter.AttitudeTangent.mult(pcritter.MaxSpeed);
             if (!_hopping && down )
             {
-                pcritter.Velocity = pcritter.AttitudeTangent.mult(-pcritter.MaxSpeed);
+                ForwardBackDirection = pcritter.AttitudeTangent.mult(-pcritter.MaxSpeed);
                 inreverse = true;
             }
             if (!_hopping && strafeLeft)
-                pcritter.Velocity = pcritter.AttitudeNormal.mult(pcritter.MaxSpeed);
+                LeftRightDirection = pcritter.AttitudeNormal.mult(pcritter.MaxSpeed);
             if (!_hopping && strafeRight)
-                pcritter.Velocity = pcritter.AttitudeNormal.mult(-pcritter.MaxSpeed);
-            if (!up && !down && !strafeLeft && !strafeRight)
-                pcritter.Velocity = new cVector3(0.0f, 0.0f, 0.0f);
+                LeftRightDirection = pcritter.AttitudeNormal.mult(-pcritter.MaxSpeed);
+            if (!up && !down)
+                ForwardBackDirection = new cVector3(0.0f, 0.0f, 0.0f);
+            if (!strafeLeft && !strafeRight)
+                LeftRightDirection = new cVector3(0.0f, 0.0f, 0.0f);
 
+
+            pcritter.Velocity = new cVector3(ForwardBackDirection.X + LeftRightDirection.X, ForwardBackDirection.Y + LeftRightDirection.Y, ForwardBackDirection.Z + LeftRightDirection.Z);
             //Now restore the y velocity.
             pcritter.Velocity = new cVector3(pcritter.Velocity.X, yvelocity, pcritter.Velocity.Z);
             //	Real inreversesign = inreverse?-1.0:1.0; 
