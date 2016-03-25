@@ -363,7 +363,7 @@ namespace ACFramework
             if (!_hopping && strafeLeft)
                 pcritter.Velocity = pcritter.AttitudeNormal.mult(pcritter.MaxSpeed);
             if (!_hopping && strafeRight)
-                pcritter.Velocity = new cVector3(pcritter.MaxSpeed, pcritter.Velocity.Y, pcritter.Velocity.Z);
+                pcritter.Velocity = pcritter.AttitudeNormal.mult(-pcritter.MaxSpeed);
             if (!up && !down && !strafeLeft && !strafeRight)
                 pcritter.Velocity = new cVector3(0.0f, 0.0f, 0.0f);
 
