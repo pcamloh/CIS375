@@ -50,8 +50,9 @@ namespace ACFramework
             : base( pownergame ) 
 		{ 
 			BulletClass = new cCritter3DPlayerBullet( ); 
-            Sprite = new cSpriteQuake(ModelsMD2.Hoshi);  
-			Sprite.SpriteAttitude = cMatrix3.scale( 2, 0.8f, 0.4f ); 
+            Sprite = new cSpriteQuake(ModelsMD2.Bravo);  
+			Sprite.SpriteAttitude = cMatrix3.scale( 2, 0.8f, 0.4f );
+            Sprite.ModelState = State.Idle;
 			setRadius( 0.6f ); //Default cCritter.PLAYERRADIUS is 0.4.  
 			setHealth( 10 ); 
 			moveTo( _movebox.LoCorner.add( new cVector3( 0.0f, 0.0f, 2.0f ))); 
