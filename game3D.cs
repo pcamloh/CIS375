@@ -50,10 +50,9 @@ namespace ACFramework
             : base( pownergame ) 
 		{ 
 			BulletClass = new cCritter3DPlayerBullet( ); 
-            Sprite = new cSpriteSphere(); 
-			Sprite.FillColor = Color.DarkGreen; 
+            Sprite = new cSpriteQuake(ModelsMD2.Hoshi);  
 			Sprite.SpriteAttitude = cMatrix3.scale( 2, 0.8f, 0.4f ); 
-			setRadius( cGame3D.PLAYERRADIUS ); //Default cCritter.PLAYERRADIUS is 0.4.  
+			setRadius( 0.6f ); //Default cCritter.PLAYERRADIUS is 0.4.  
 			setHealth( 10 ); 
 			moveTo( _movebox.LoCorner.add( new cVector3( 0.0f, 0.0f, 2.0f ))); 
 			WrapFlag = cCritter.CLAMP; //Use CLAMP so you stop dead at edges.
