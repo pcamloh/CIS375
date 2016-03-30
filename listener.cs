@@ -344,6 +344,8 @@ namespace ACFramework
             just use a moveTo because I want to have a correct _velocity inside the 
             critter so I can use it to hit things and bounce and so on.  So I change
             the velocity.*/
+            cVector3 ForwardBackDirection = new cVector3();
+            cVector3 LeftRightDirection = new cVector3();
             bool inreverse = false; //Only set TRUE if currently pressing VK_DOWN 
             bool left = Framework.Keydev[vk.Left];
             bool right = Framework.Keydev[vk.Right];
@@ -369,8 +371,9 @@ namespace ACFramework
             if (!strafeLeft && !strafeRight)
                 LeftRightDirection = new cVector3(0.0f, 0.0f, 0.0f);
 
-
+            if (!_hopping)
             pcritter.Velocity = new cVector3(ForwardBackDirection.X + LeftRightDirection.X, ForwardBackDirection.Y + LeftRightDirection.Y, ForwardBackDirection.Z + LeftRightDirection.Z);
+             
             //Now restore the y velocity.
             pcritter.Velocity = new cVector3(pcritter.Velocity.X, yvelocity, pcritter.Velocity.Z);
             //	Real inreversesign = inreverse?-1.0:1.0; 
