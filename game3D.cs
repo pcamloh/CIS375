@@ -45,15 +45,19 @@ namespace ACFramework
 	class cCritter3DPlayer : cCritterArmedPlayer 
 	{ 
         private bool warningGiven = false;
-		
+        int elapsed;
+        System.Timers.Timer animationCancel;
         public cCritter3DPlayer( cGame pownergame ) 
             : base( pownergame ) 
 		{ 
-			BulletClass = new cCritter3DPlayerBullet( ); 
-            Sprite = new cSpriteQuake(ModelsMD2.Bravo);  
+            animationCancel = new System.Timers.Timer();
+			BulletClass = new cCritter3DPlayerBullet( );
+            elapsed = 0;
+            Sprite = new cSpriteQuake(ModelsMD2.Bravo); 
+            //For Johnny Bravo, state 9 will be used for damage at a 1 second interval
 			Sprite.SpriteAttitude = cMatrix3.scale( 2, 0.8f, 0.4f );
             Sprite.ModelState = State.Idle;
-			setRadius( 0.6f ); //Default cCritter.PLAYERRADIUS is 0.4.  
+			setRadius( 0.5f ); //Default cCritter.PLAYERRADIUS is 0.4.  
 			setHealth( 10 ); 
 			moveTo( _movebox.LoCorner.add( new cVector3( 0.0f, 0.0f, 2.0f ))); 
 			WrapFlag = cCritter.CLAMP; //Use CLAMP so you stop dead at edges.
@@ -107,7 +111,7 @@ namespace ACFramework
 			else 
 			{ 
 				damage( 1 );
-                Framework.snd.play(Sound.Crunch); 
+                Framework.snd.play(Sound.Crunch);
 			} 
 			pcritter.die(); 
 			return true; 
@@ -115,8 +119,24 @@ namespace ACFramework
 
         public override cCritterBullet shoot()
         {
+            animationCancel.Interval = 100;
+            Sprite.setstate(State.ShotButStillStanding, 0, 0, StateType.Hold);
+            animationCancel.Start();
+            animationCancel.Elapsed += new System.Timers.ElapsedEventHandler(interval_Tick);
             Framework.snd.play(Sound.LaserFire);
             return base.shoot();
+        }
+
+        private void interval_Tick(object sender, EventArgs e)
+        {
+            elapsed++;
+            if (elapsed % 10 == 0)
+            {
+                Sprite.ModelState = State.Idle;
+                elapsed = 0;
+                animationCancel.Stop();
+            }
+            Console.WriteLine(elapsed);
         }
 
         public override bool IsKindOf( string str )
@@ -192,6 +212,7 @@ namespace ACFramework
 				/* Orient them so they are facing towards positive Z with heads towards Y. */ 
 			} 
 			Bounciness = 0.0f; //Not 1.0 means it loses a bit of energy with each bounce.
+            //Boss is 3.0f, Room 1 is 2.0f, Room 2 is 1.5f
 			setRadius( 1.0f );
             MinTwitchThresholdSpeed = 4.0f; //Means sprite doesn't switch direction unless it's moving fast 
 			randomizePosition( new cRealBox3( new cVector3( _movebox.Lox, _movebox.Loy, _movebox.Loz + 4.0f), 
@@ -232,7 +253,7 @@ namespace ACFramework
 	
 		public override void die() 
 		{ 
-			Player.addScore( Value ); 
+			Player.addScore( Value );
 			base.die(); 
 		} 
 
