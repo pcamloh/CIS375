@@ -136,7 +136,6 @@ namespace ACFramework
                 elapsed = 0;
                 animationCancel.Stop();
             }
-            Console.WriteLine(elapsed);
         }
 
         public override bool IsKindOf( string str )
@@ -188,11 +187,17 @@ namespace ACFramework
 	} 
 	
 	class cCritter3Dcharacter : cCritter  
-	{ 
-		
+	{
+        System.Timers.Timer deathAnimation;
+        int elapsed;
+        Random rndRip;
+        int ripState;
         public cCritter3Dcharacter( cGame pownergame ) 
             : base( pownergame ) 
-		{ 
+		{
+            deathAnimation = new System.Timers.Timer();
+            elapsed = 0;
+            rndRip = new Random();
 			addForce( new cForceGravity( 25.0f, new cVector3( 0.0f, -1, 0.00f ))); 
 			addForce( new cForceDrag( 20.0f ) );  // default friction strength 0.5 
 			Density = 2.0f; 
@@ -252,11 +257,30 @@ namespace ACFramework
 		// do a delete_me if you hit the left end 
 	
 		public override void die() 
-		{ 
+		{
+            ripState = rndRip.Next(0, 2);
+            deathAnimation.Interval = 100;
+            if (ripState == 0)
+                Sprite.setstate(State.FallbackDie, 0, 0, StateType.Hold);
+            else if (ripState == 1)
+                Sprite.setstate(State.FallForwardDie, 0, 0, StateType.Hold);
+            deathAnimation.Start();
+            deathAnimation.Elapsed += new System.Timers.ElapsedEventHandler(interval_Tick);
 			Player.addScore( Value );
-			base.die(); 
-		} 
+			//base.die(); 
+		}
 
+        private void interval_Tick(object sender, EventArgs e)
+        {
+            elapsed++;
+            if (elapsed % 10 == 0)
+            {
+                Sprite.ModelState = State.Idle;
+                elapsed = 0;
+                deathAnimation.Stop();
+                base.die();
+            }
+        }
        public override bool IsKindOf( string str )
         {
             return str == "cCritter3Dcharacter" || base.IsKindOf( str );
