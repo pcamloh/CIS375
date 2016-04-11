@@ -706,7 +706,11 @@ namespace ACFramework
             {
                 try
                 {
-
+                    //_psprite = mySprite;
+                    //initialize(new cVector3(this.Position.X + (newenda.X - enda.X) / x, this.Position.Y + (newenda.Y - enda.Y) / x, this.Position.Z + (newenda.Z - enda.Z) / x),
+                    //new cVector3(this.Position.X + (newendb.X - endb.X) / x, this.Position.Y + (newendb.Y - endb.Y) / x, this.Position.Z + (newendb.Z - endb.Z) / x), thickness, height, pownergame);
+                    //_psprite = mySprite;
+                    //this.Sprite = mySprite;
                     moveTo(new cVector3(this.Position.X + ((endb.X - enda.X) / x), this.Position.Y + ((endb.Y - enda.Y) / x), this.Position.Z + ((endb.Z - enda.Z) / x)), true);
                     elapsed++;
                     if (elapsed == x)
@@ -723,7 +727,7 @@ namespace ACFramework
             }
             else
             {
-                //moveTo(new cVector3(this.Position.X + ((enda.X - endb.X) / x), this.Position.Y + ((enda.Y - endb.Y) / x), this.Position.Z + ((enda.Z - endb.Z) / x)), true);
+                moveTo(new cVector3(this.Position.X + ((enda.X - endb.X) / x), this.Position.Y + ((enda.Y - endb.Y) / x), this.Position.Z + ((enda.Z - endb.Z) / x)), true);
                 elapsed++;
                 if (elapsed == 0)
                 {
