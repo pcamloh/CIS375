@@ -600,6 +600,9 @@ namespace ACFramework
         cVector3 newenda;
         cVector3 newendb;
         int x;
+        float distx;
+        float disty;
+        float distz;
 
         //constructor to appear/vanish at random intervals
         public cCritterPlatform(cVector3 penda, cVector3 pendb, Random prnd, int id, float pthickness = THICKNESS,
@@ -654,7 +657,7 @@ namespace ACFramework
             x = pinterval;
             state = true;
             tmr = new System.Timers.Timer();
-            tmr.Interval = 100;
+            tmr.Interval = 33;
             tmr.Start();
             tmr.Elapsed += new System.Timers.ElapsedEventHandler(tmr_MoveTick);
             elapsed = 0;
@@ -665,6 +668,10 @@ namespace ACFramework
             height = pheight;
             thickness = pthickness;
             pownergame = ppownergame;
+            distx = newenda.X - enda.X;
+            disty = newenda.Y - enda.Y;
+            distz = newenda.Z - enda.Z;
+            
         }
 
         //TODO: Constructor to start at point X, float to point Y, disappear, reappear later at point X
@@ -711,7 +718,7 @@ namespace ACFramework
                     //new cVector3(this.Position.X + (newendb.X - endb.X) / x, this.Position.Y + (newendb.Y - endb.Y) / x, this.Position.Z + (newendb.Z - endb.Z) / x), thickness, height, pownergame);
                     //_psprite = mySprite;
                     //this.Sprite = mySprite;
-                    moveTo(new cVector3(this.Position.X + ((endb.X - enda.X) / x), this.Position.Y + ((endb.Y - enda.Y) / x), this.Position.Z + ((endb.Z - enda.Z) / x)), true);
+                    moveTo(new cVector3((this.Position.X + distx / x), (this.Position.Y +  disty / x), (this.Position.Z + distz / x)));
                     elapsed++;
                     if (elapsed == x)
                     {
@@ -727,11 +734,19 @@ namespace ACFramework
             }
             else
             {
-                moveTo(new cVector3(this.Position.X + ((enda.X - endb.X) / x), this.Position.Y + ((enda.Y - endb.Y) / x), this.Position.Z + ((enda.Z - endb.Z) / x)), true);
-                elapsed++;
-                if (elapsed == 0)
+                try
+                {
+                    moveTo(new cVector3((this.Position.X - distx / x), (this.Position.Y - disty / x), (this.Position.Z - distz / x)));
+                    elapsed++;
+                    if (elapsed == 0)
+                    {
+                        state = true;
+                    }
+                }
+                catch
                 {
                     state = true;
+                    elapsed = elapsed * -1;
                 }
             }
         }
