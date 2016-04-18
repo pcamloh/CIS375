@@ -122,18 +122,18 @@ namespace ACFramework
         {
             current = start;
             Node<DataType> klugeNode;
-            while (current.next != null)
+            while (!object.ReferenceEquals(null, current) && !object.ReferenceEquals(null, current.next))
             {
                 yield return current.next.info;
-                current = current.next;
                 try
                 {
-                    klugeNode = current.next;
+                    current = current.next;
                 }
                 catch
                 {
                     break;
                 }
+
 
             }
         }
@@ -143,13 +143,13 @@ namespace ACFramework
         public void First(out DataType element)
         {
             current = start;
-            Assign( out element, current.next.info );
+            Assign(out element, current.next.info);
         }
 
         public bool GetNext(out DataType element)
         {
-            element = default( DataType );
-            if ( !removeflag )
+            element = default(DataType);
+            if (!removeflag)
                 current = current.next;
             removeflag = false;
             if (current == back)
@@ -244,7 +244,7 @@ namespace ACFramework
             size--;
         }
 
-        public void RemoveAt( int i )
+        public void RemoveAt(int i)
         {
             locate(i);
             RemoveAt();
@@ -257,7 +257,7 @@ namespace ACFramework
             size = 0;
         }
 
-        private void locate( int i )
+        private void locate(int i)
         {
             current = start;
             int j = 0;
