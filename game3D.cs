@@ -106,14 +106,30 @@ namespace ACFramework
 			if ( playerhigherthancritter ) 
 			{
                 Framework.snd.play(Sound.Goopy); 
-				addScore( 10 ); 
+				addScore( 10 );
+                pcritter.die();
 			} 
 			else 
-			{ 
-				damage( 1 );
-                Framework.snd.play(Sound.Crunch);
+			{
+                if (pcritter.Sprite.ModelState == State.FallbackDie)
+                {
+                 
+                }
+                if (pcritter.Sprite.ModelState == State.FallForwardDie)
+                {
+
+                }
+                else
+                {
+                    damage(1);
+                    animationCancel.Interval = 100;
+                    Sprite.setstate(9, 0, 0, StateType.Hold);
+                    animationCancel.Start();
+                    animationCancel.Elapsed += new System.Timers.ElapsedEventHandler(interval_Tick);
+                    Framework.snd.play(Sound.Crunch);
+                    pcritter.die();
+                }
 			} 
-			pcritter.die(); 
 			return true; 
 		}
 
@@ -167,7 +183,7 @@ namespace ACFramework
 		public override void initialize( cCritterArmed pshooter ) 
 		{ 
 			base.initialize( pshooter );
-            Sprite.FillColor = Color.Crimson;
+            Sprite.FillColor = Color.Teal;
             // can use setSprite here too
             setRadius(0.1f);
 		} 
@@ -239,7 +255,7 @@ namespace ACFramework
                 endf = temp;
             }
 
-			Sprite.setstate( State.Other, begf, endf, StateType.Repeat );
+			Sprite.setstate( State.Idle, begf, endf, StateType.Repeat );
 
 
             _wrapflag = cCritter.BOUNCE;
@@ -258,6 +274,7 @@ namespace ACFramework
 	
 		public override void die() 
 		{
+            Player.addScore(1);
             ripState = rndRip.Next(0, 2);
             deathAnimation.Interval = 100;
             if (ripState == 0)
@@ -266,8 +283,6 @@ namespace ACFramework
                 Sprite.setstate(State.FallForwardDie, 0, 0, StateType.Hold);
             deathAnimation.Start();
             deathAnimation.Elapsed += new System.Timers.ElapsedEventHandler(interval_Tick);
-			Player.addScore( Value );
-			//base.die(); 
 		}
 
         private void interval_Tick(object sender, EventArgs e)
@@ -275,7 +290,6 @@ namespace ACFramework
             elapsed++;
             if (elapsed % 10 == 0)
             {
-                Sprite.ModelState = State.Idle;
                 elapsed = 0;
                 deathAnimation.Stop();
                 base.die();
@@ -367,20 +381,26 @@ namespace ACFramework
 		public static readonly float TREASURERADIUS = 1.2f; 
 		public static readonly float WALLTHICKNESS = 0.5f; 
 		public static readonly float PLAYERRADIUS = 0.2f; 
-		public static readonly float MAXPLAYERSPEED = 30.0f; 
+		public static readonly float MAXPLAYERSPEED = 30.0f;
+        System.Timers.Timer dieAnimation;
 		private cCritterTreasure _ptreasure; 
 		private bool doorcollision;
         private bool wentThrough = false;
         private float startNewRoom;
-		
+        int elapsed;
+        bool endgame;
+        bool timerStart;
 		public cGame3D() 
 		{
+            endgame = false;
+            timerStart = false;
+            elapsed = 0;
 			doorcollision = false; 
 			_menuflags &= ~ cGame.MENU_BOUNCEWRAP; 
 			_menuflags |= cGame.MENU_HOPPER; //Turn on hopper listener option.
 			_spritetype = cGame.ST_MESHSKIN; 
 			setBorder( 64.0f, 16.0f, 64.0f ); // size of the world
-		
+            dieAnimation = new System.Timers.Timer();
 			cRealBox3 skeleton = new cRealBox3();
             skeleton.copy(_border);
 			setSkyBox( skeleton );
@@ -390,11 +410,11 @@ namespace ACFramework
 		I am flying into the screen from HIZ towards LOZ, and
 		LOX below and HIX above and
 		LOY on the right and HIY on the left. */ 
-			SkyBox.setSideSolidColor( cRealBox3.HIZ, Color.Aqua ); //Make the near HIZ transparent 
-			SkyBox.setSideSolidColor( cRealBox3.LOZ, Color.Aqua ); //Far wall 
-			SkyBox.setSideSolidColor( cRealBox3.LOX, Color.DarkOrchid ); //left wall 
-            SkyBox.setSideTexture( cRealBox3.HIX, BitmapRes.Wall2, 2 ); //right wall 
-			SkyBox.setSideTexture( cRealBox3.LOY, BitmapRes.Graphics3 ); //floor 
+			SkyBox.setSideTexture( cRealBox3.HIZ, BitmapRes.Wall3, 20 ); //Make the near HIZ transparent 
+			SkyBox.setSideTexture( cRealBox3.LOZ, BitmapRes.Wall3, 20 ); //Far wall 
+			SkyBox.setSideTexture( cRealBox3.LOX, BitmapRes.Wall3, 10 ); //left wall 
+            SkyBox.setSideTexture( cRealBox3.HIX, BitmapRes.Wall3, 10 ); //right wall 
+			SkyBox.setSideTexture( cRealBox3.LOY, BitmapRes.Floor, 20 ); //floor 
 			SkyBox.setSideTexture( cRealBox3.HIY, BitmapRes.Sky ); //ceiling 
 		
 			WrapFlag = cCritter.BOUNCE; 
@@ -530,8 +550,18 @@ namespace ACFramework
 				    value.setViewpoint( new cVector3( 0.0f, 0.3f, 1.0f ), _border.Center); 
 			    }
             }
-		} 
-
+		}
+        private void interval_Tick(object sender, EventArgs e)
+        {
+            elapsed++;
+            if (elapsed % 3 == 0)
+            {
+                //System.Console.WriteLine("we've reached this part");
+                elapsed = 0;
+                endgame = true;
+                dieAnimation.Stop();
+            }
+        }
 		/* Move over to be above the
 			lower left corner where the player is.  In 3D, use a low viewpoint low looking up. */ 
 	
@@ -540,10 +570,21 @@ namespace ACFramework
 		// (1) End the game if the player is dead 
 			if ( (Health == 0) && !_gameover ) //Player's been killed and game's not over.
 			{ 
-				_gameover = true; 
-				Player.addScore( _scorecorrection ); // So user can reach _maxscore  
-                Framework.snd.play(Sound.Hallelujah);
-                return ; 
+				//_gameover = true;
+                dieAnimation.Interval = 100;
+                Player.Sprite.ModelState = State.FallbackDie;
+                if (!timerStart)
+                {
+                    dieAnimation.Start();
+                }
+                dieAnimation.Elapsed += new System.Timers.ElapsedEventHandler(interval_Tick);
+                if (endgame == true)
+                {
+                    _gameover = true;
+                    Player.addScore(_scorecorrection); // So user can reach _maxscore  
+                    Framework.snd.play(Sound.Hallelujah);
+                    return;
+                }
 			} 
 		// (2) Also don't let the the model count diminish.
 					//(need to recheck propcount in case we just called seedCritters).

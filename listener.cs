@@ -296,7 +296,7 @@ namespace ACFramework
         public virtual float WalkSpeed
         {
             get
-                { return _walkspeed; }
+            { return _walkspeed; }
         }
 
         public override string RuntimeClass
@@ -328,7 +328,7 @@ namespace ACFramework
             _falling = false;
         }
 
-         public override void listen(float dt, cCritter pcritter)
+        public override void listen(float dt, cCritter pcritter)
         {
             cKeyInfo pcontroller = Framework.Keydev;
             /* Note that since I set the velocity to 0.0 when I'm not
@@ -355,83 +355,106 @@ namespace ACFramework
             bool pagedown = Framework.Keydev[vk.PageDown];
             bool strafeLeft = Framework.Keydev[vk.A];
             bool strafeRight = Framework.Keydev[vk.D];
-            if (!_hopping && up)
-                ForwardBackDirection = pcritter.AttitudeTangent.mult(pcritter.MaxSpeed);
-            if (!_hopping && down )
+            if (pcritter.Health != 0)
             {
-                ForwardBackDirection = pcritter.AttitudeTangent.mult(-pcritter.MaxSpeed);
-                inreverse = true;
-            }
-            if (!_hopping && strafeLeft)
-                LeftRightDirection = pcritter.AttitudeNormal.mult(pcritter.MaxSpeed);
-            if (!_hopping && strafeRight)
-                LeftRightDirection = pcritter.AttitudeNormal.mult(-pcritter.MaxSpeed);
-            if (!up && !down)
-                ForwardBackDirection = new cVector3(0.0f, 0.0f, 0.0f);
-            if (!strafeLeft && !strafeRight)
-                LeftRightDirection = new cVector3(0.0f, 0.0f, 0.0f);
+                if (!_hopping && up)
+                {
+                    pcritter.Sprite.ModelState = State.Run;
+                    ForwardBackDirection = pcritter.AttitudeTangent.mult(pcritter.MaxSpeed);
+                }
+                if (!_hopping && down)
+                {
+                    pcritter.Sprite.ModelState = State.Run;
+                    ForwardBackDirection = pcritter.AttitudeTangent.mult(-pcritter.MaxSpeed);
+                    inreverse = true;
+                }
+                if (!_hopping && strafeLeft)
+                {
+                    pcritter.Sprite.ModelState = State.Run;
+                    LeftRightDirection = pcritter.AttitudeNormal.mult(pcritter.MaxSpeed);
+                }
+                if (!_hopping && strafeRight)
+                {
+                    pcritter.Sprite.ModelState = State.Run;
+                    LeftRightDirection = pcritter.AttitudeNormal.mult(-pcritter.MaxSpeed);
+                }
+                if (!up && !down)
+                    ForwardBackDirection = new cVector3(0.0f, 0.0f, 0.0f);
+                if (!strafeLeft && !strafeRight)
+                {
+                    LeftRightDirection = new cVector3(0.0f, 0.0f, 0.0f);
+                }
+                if (!_hopping)
+                    pcritter.Velocity = new cVector3(ForwardBackDirection.X + LeftRightDirection.X, ForwardBackDirection.Y + LeftRightDirection.Y, ForwardBackDirection.Z + LeftRightDirection.Z);
 
-            if (!_hopping)
-            pcritter.Velocity = new cVector3(ForwardBackDirection.X + LeftRightDirection.X, ForwardBackDirection.Y + LeftRightDirection.Y, ForwardBackDirection.Z + LeftRightDirection.Z);
-             
-            //Now restore the y velocity.
-            pcritter.Velocity = new cVector3(pcritter.Velocity.X, yvelocity, pcritter.Velocity.Z);
-            //	Real inreversesign = inreverse?-1.0:1.0; 
+                //Now restore the y velocity.
+                pcritter.Velocity = new cVector3(pcritter.Velocity.X, yvelocity, pcritter.Velocity.Z);
+                //	Real inreversesign = inreverse?-1.0:1.0; 
 
-            if (!_hopping && !left && !right && !pagedown && !pageup)
-                return;
-            /* If you get here, you've pressed an arrow key or a hop key. */
-            if (!_hopping && (left || right))
-            {
-                /* To rotate, Do three things.
-            (a) Match the motion vectors to the visible attitude.
-            (b) Rotate the motion vectors withe the arrow keys.
-            (c) Match the attitude to the altered motion vectors. */
-                //(a) Match the motion matrix to the attitude.
-                pcritter.copyAttitudeMatrixToMotionMatrix(); //Changes _velocity 
-                if (inreverse) //Keep the tangent and atttitudeTangent in opposite directions.
-                    pcritter.yaw((float)Math.PI); //This puts _velocity back in the correct direction.
-                //(b) Alter the motion matrix.
-                if (left)
-                    pcritter.yaw(dt * turnspeed(pcontroller.keystateage(vk.Left)));
-                if (right)
-                    pcritter.yaw(-dt * turnspeed(pcontroller.keystateage(vk.Right)));
-                //(c) Match the attitude to the motion matrix.
-                pcritter.copyMotionMatrixToAttitudeMatrix();
-                if (inreverse) //Keep the tangent and atttitudeTangent in opposite directions.
-                    pcritter.rotateAttitude((float)-Math.PI);
-                pcritter.Velocity = //Restore y velocity in case you changed it again.
-                    new cVector3(pcritter.Velocity.X, yvelocity, pcritter.Velocity.Z);
-            }
-            //Hopping code 
-            // I've rewritten this code so the player can't hop again in midair --  
-            // unless forces other than gravity act on it in midair -- oh, well, it's  
-            // still not perfect -- JC 
-            bool hopkeypressed = pageup;
+                if (!_hopping && !left && !right && !pagedown && !pageup && !up && !down && !strafeLeft && !strafeRight)
+                {
+                    pcritter.Sprite.ModelState = State.Idle;
+                    return;
+                }
+                /* If you get here, you've pressed an arrow key or a hop key. */
+                if (!_hopping && (left || right))
+                {
+                    /* To rotate, Do three things.
+                (a) Match the motion vectors to the visible attitude.
+                (b) Rotate the motion vectors withe the arrow keys.
+                (c) Match the attitude to the altered motion vectors. */
+                    //(a) Match the motion matrix to the attitude.
+                    pcritter.copyAttitudeMatrixToMotionMatrix(); //Changes _velocity 
+                    if (inreverse) //Keep the tangent and atttitudeTangent in opposite directions.
+                        pcritter.yaw((float)Math.PI); //This puts _velocity back in the correct direction.
+                    //(b) Alter the motion matrix.
+                    if (left)
+                        pcritter.yaw(dt * turnspeed(pcontroller.keystateage(vk.Left)));
+                    if (right)
+                        pcritter.yaw(-dt * turnspeed(pcontroller.keystateage(vk.Right)));
+                    //(c) Match the attitude to the motion matrix.
+                    pcritter.copyMotionMatrixToAttitudeMatrix();
+                    if (inreverse) //Keep the tangent and atttitudeTangent in opposite directions.
+                        pcritter.rotateAttitude((float)-Math.PI);
+                    pcritter.Velocity = //Restore y velocity in case you changed it again.
+                        new cVector3(pcritter.Velocity.X, yvelocity, pcritter.Velocity.Z);
+                }
+                //Hopping code 
+                // I've rewritten this code so the player can't hop again in midair --  
+                // unless forces other than gravity act on it in midair -- oh, well, it's  
+                // still not perfect -- JC 
+                bool hopkeypressed = pageup;
 
-            if (hopkeypressed && !_hopping)
-            {
-                //Pulse upwards 
-                saveMaxSpeed = pcritter.MaxSpeed;
-                pcritter.MaxSpeed = cGame3D.MAXPLAYERSPEED;
-                pcritter.addAcceleration(new cVector3(0.0f, _hopstrength * pcritter.ListenerAcceleration, 0.0f));
-                _hopping = true;
-                _falling = false;
-                _lastSpeed = pcritter.MaxSpeed;
+                if (hopkeypressed && !_hopping)
+                {
+                    //Pulse upwards
+                    pcritter.Sprite.ModelState = State.Jump;
+                    saveMaxSpeed = pcritter.MaxSpeed;
+                    pcritter.MaxSpeed = cGame3D.MAXPLAYERSPEED;
+                    pcritter.addAcceleration(new cVector3(0.0f, _hopstrength * pcritter.ListenerAcceleration, 0.0f));
+                    _hopping = true;
+                    _falling = false;
+                    _lastSpeed = pcritter.MaxSpeed;
+                }
+                else
+                {
+                    if (_hopping && _lastSpeed < pcritter.Speed)
+                    {
+                        _falling = true;
+                    }
+                    else if (_hopping && _falling)
+                    {
+                        _hopping = false; // player has landed  
+                        _falling = false;
+                        pcritter.Sprite.ModelState = State.Idle;
+                        pcritter.MaxSpeed = saveMaxSpeed;
+                    }
+                    _lastSpeed = pcritter.Speed;
+                }
             }
             else
             {
-                if (_hopping && _lastSpeed < pcritter.Speed)
-                {
-                    _falling = true;
-                }
-                else if (_hopping && _falling)
-                {
-                    _hopping = false; // player has landed  
-                    _falling = false;
-                    pcritter.MaxSpeed = saveMaxSpeed;
-                }
-                _lastSpeed = pcritter.Speed;
+                pcritter.Velocity = new cVector3(0.0f, 0.0f, 0.0f);
             }
         }
 

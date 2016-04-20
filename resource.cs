@@ -34,6 +34,8 @@ namespace ACFramework
         public static readonly int Sky = 6;
         public static readonly int Wood2 = 7;
         public static readonly int Concrete = 8;
+        public static readonly int Floor = 9;
+        public static readonly int Walls = 10;
         
 
         private static readonly string[] Bitmap = new string[] {
@@ -45,7 +47,9 @@ namespace ACFramework
                 "graphics3.bmp",
                 "sky.bmp",
                 "wood2.bmp",
-                "concrete1.bmp"
+                "concrete1.bmp",
+                "metal1.bmp",
+                "wall5.bmp"
             };
 
         public BitmapRes()
@@ -328,26 +332,16 @@ namespace ACFramework
         // add more models here that you need in numerical order
         // then add to the array below in the same order
 
-        public static readonly int Squidge = 0;
-        public static readonly int Robot = 1;
-        public static readonly int Link = 2;
-        public static readonly int Knight = 3;
-        public static readonly int CitrusFrog = 4;
-        public static readonly int Sorb = 5;
-        public static readonly int Tyrant = 6;
-        public static readonly int Ranger = 7;
-        public static readonly int Bravo = 8;
+        public static readonly int Sorb = 0;
+        public static readonly int Tyrant = 1;
+        public static readonly int Ranger = 2;
+        public static readonly int Bravo = 3;
         
 
         // at least one must be set true
         private static readonly ModelsMD2Info[] minfo = {
-            new ModelsMD2Info( "Squidge", "squidge.pcx", 0.0f, true ),
-            new ModelsMD2Info( "robot", "robot.pcx", 0.2f, true ),
-            new ModelsMD2Info( "link", "soft_link.pcx", 0.1f, true ),
-            new ModelsMD2Info( "pknight", "ctf_b.pcx", 0.15f, true ),
-            new ModelsMD2Info( "citrusfrog", "BigRed.pcx", 0.3f, true ),
             //This is the enemy used for Room 1
-            new ModelsMD2Info( "sorb", "Sorb.pcx", 0.6f, true),
+            new ModelsMD2Info( "sorb", "Sorb.pcx", 0.1f, true),
             //This is the enemy used for the Boss Room
             new ModelsMD2Info( "tyrant", "hivetyrant.pcx", 0.1f, true),
             //This is the enemy used for Room 2
