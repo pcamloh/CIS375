@@ -427,6 +427,7 @@ namespace ACFramework
 
                 if (hopkeypressed && !_hopping)
                 {
+                    Framework.snd.play(Sound.Jump);
                     //Pulse upwards
                     pcritter.Sprite.ModelState = State.Jump;
                     saveMaxSpeed = pcritter.MaxSpeed;

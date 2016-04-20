@@ -46,6 +46,8 @@ namespace ACFramework
 	{ 
         private bool warningGiven = false;
         int elapsed;
+        Random painSound;
+        int pain;
         System.Timers.Timer animationCancel;
         public cCritter3DPlayer( cGame pownergame ) 
             : base( pownergame ) 
@@ -53,6 +55,7 @@ namespace ACFramework
             animationCancel = new System.Timers.Timer();
 			BulletClass = new cCritter3DPlayerBullet( );
             elapsed = 0;
+            painSound = new Random();
             Sprite = new cSpriteQuake(ModelsMD2.Bravo); 
             //For Johnny Bravo, state 9 will be used for damage at a 1 second interval
 			Sprite.SpriteAttitude = cMatrix3.scale( 2, 0.8f, 0.4f );
@@ -121,12 +124,24 @@ namespace ACFramework
                 }
                 else
                 {
+                    pain = painSound.Next(1, 4);
                     damage(1);
                     animationCancel.Interval = 100;
                     Sprite.setstate(9, 0, 0, StateType.Hold);
                     animationCancel.Start();
                     animationCancel.Elapsed += new System.Timers.ElapsedEventHandler(interval_Tick);
-                    Framework.snd.play(Sound.Crunch);
+                    if (pain == 1)
+                    {
+                        Framework.snd.play(Sound.Pain1);
+                    }
+                    if (pain == 2)
+                    {
+                        Framework.snd.play(Sound.Pain2);
+                    }
+                    if (pain == 3)
+                    {
+                        Framework.snd.play(Sound.Pain3);
+                    }
                     pcritter.die();
                 }
 			} 
@@ -410,10 +425,10 @@ namespace ACFramework
 		I am flying into the screen from HIZ towards LOZ, and
 		LOX below and HIX above and
 		LOY on the right and HIY on the left. */ 
-			SkyBox.setSideTexture( cRealBox3.HIZ, BitmapRes.Wall3, 20 ); //Make the near HIZ transparent 
-			SkyBox.setSideTexture( cRealBox3.LOZ, BitmapRes.Wall3, 20 ); //Far wall 
-			SkyBox.setSideTexture( cRealBox3.LOX, BitmapRes.Wall3, 10 ); //left wall 
-            SkyBox.setSideTexture( cRealBox3.HIX, BitmapRes.Wall3, 10 ); //right wall 
+			SkyBox.setSideTexture( cRealBox3.HIZ, BitmapRes.Wall3, 70 ); //Make the near HIZ transparent 
+			SkyBox.setSideTexture( cRealBox3.LOZ, BitmapRes.Wall3, 70 ); //Far wall 
+			SkyBox.setSideTexture( cRealBox3.LOX, BitmapRes.FlipWall, 20 ); //left wall 
+            SkyBox.setSideTexture( cRealBox3.HIX, BitmapRes.FlipWall, 20 ); //right wall 
 			SkyBox.setSideTexture( cRealBox3.LOY, BitmapRes.Floor, 20 ); //floor 
 			SkyBox.setSideTexture( cRealBox3.HIY, BitmapRes.Sky ); //ceiling 
 		
@@ -572,6 +587,7 @@ namespace ACFramework
 			{ 
 				//_gameover = true;
                 dieAnimation.Interval = 100;
+                Framework.snd.play(Sound.Death3);
                 Player.Sprite.ModelState = State.FallbackDie;
                 if (!timerStart)
                 {

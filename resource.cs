@@ -36,6 +36,7 @@ namespace ACFramework
         public static readonly int Concrete = 8;
         public static readonly int Floor = 9;
         public static readonly int Walls = 10;
+        public static readonly int FlipWall = 11;
         
 
         private static readonly string[] Bitmap = new string[] {
@@ -49,7 +50,8 @@ namespace ACFramework
                 "wood2.bmp",
                 "concrete1.bmp",
                 "metal1.bmp",
-                "wall5.bmp"
+                "wall5.bmp",
+                "wall3flipped.bmp"
             };
 
         public BitmapRes()
@@ -89,6 +91,13 @@ namespace ACFramework
         public static readonly int Goopy = 3;
         public static readonly int LaserFire = 4;
         public static readonly int Hallelujah = 5;
+        public static readonly int Jump = 6;
+        public static readonly int Pain1 = 7;
+        public static readonly int Pain2 = 8;
+        public static readonly int Pain3 = 9;
+        public static readonly int Death1 = 10;
+        public static readonly int Death2 = 11;
+        public static readonly int Death3 = 12;
 
         private static readonly string[] sound = new string[] {
                 "pop.wav",
@@ -96,7 +105,14 @@ namespace ACFramework
                 "crunch.wav",
                 "goopy.wav",
                 "laserfire3.wav",
-                "hallelujah.wav"
+                "hallelujah.wav",
+                "jump1.wav",
+                "pain25_1.wav",
+                "pain25_2.wav",
+                "pain100_2.wav",
+                "death1.wav",
+                "death3.wav",
+                "death4.wav"
             };
 
         public Sound()
