@@ -1000,7 +1000,10 @@ namespace ACFramework
         }
 		/* Move over to be above the
 			lower left corner where the player is.  In 3D, use a low viewpoint low looking up. */ 
-	
+	public void setEndGame()
+        {
+            _gameover = true;
+        }
 		public override void adjustGameParameters() 
 		{
 		// (1) End the game if the player is dead 
