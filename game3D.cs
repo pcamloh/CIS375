@@ -772,6 +772,10 @@ namespace ACFramework
         int elapsed;
         bool endgame;
         bool timerStart;
+        private int monsterCount=0 ;
+        private bool room1 = true;
+        private bool room2 = false;
+        private bool bossRoom = false;
 		public cGame3D() 
 		{
             endgame = false;
@@ -803,7 +807,7 @@ namespace ACFramework
 			_seedcount = 7; 
 			setPlayer( new cCritter3DPlayer( this )); 
 			_ptreasure = new cCritterTreasure( this ); 
-		
+			monsterCount = _seedCount;
 			/* In this world the x and y go left and up respectively, while z comes out of the screen.
 		A wall views its "thickness" as in the y direction, which is up here, and its
 		"height" as in the z direction, which is into the screen. */ 
@@ -849,50 +853,100 @@ namespace ACFramework
 			pdwall.Sprite = pspritedoor; 
 		} 
 
-        public void setRoom1( )
+       public void setRoom2()
         {
+            room1 = false;
+            room2 = true;
+            bossRoom = false;
             Biota.purgeCritters("cCritterWall");
             Biota.purgeCritters("cCritter3Dcharacter");
-            setBorder(10.0f, 15.0f, 10.0f); 
-	        cRealBox3 skeleton = new cRealBox3();
-            skeleton.copy( _border );
-	        setSkyBox(skeleton);
-	        SkyBox.setAllSidesTexture( BitmapRes.Graphics1, 2 );
-	        SkyBox.setSideTexture( cRealBox3.LOY, BitmapRes.Concrete );
-	        SkyBox.setSideSolidColor( cRealBox3.HIY, Color.Blue );
-	        _seedcount = 0;
-	        Player.setMoveBox( new cRealBox3( 10.0f, 15.0f, 10.0f ) );
+            setBorder(60.0f, 25.0f, 60.0f);
+            cRealBox3 skeleton = new cRealBox3();
+            skeleton.copy(_border);
+            setSkyBox(skeleton);
+            SkyBox.setAllSidesTexture(BitmapRes.Fire, 1);
+            SkyBox.setSideTexture(cRealBox3.LOY, BitmapRes.Wood2);
+            SkyBox.setSideSolidColor(cRealBox3.HIY, Color.Firebrick);
+            SkyBox.setSideTexture(cRealBox3.HIX, BitmapRes.Concrete);
+            _seedcount = 3;
+            monsterCount =_seedcount;
+            seedCritters();
+           
+            Player.setMoveBox(new cRealBox3(60.0f, 25.0f, 60.0f));
+            float zpos = 0.0f; /* Point on the z axis where we set down the wall.  0 would be center,
+			halfway down the hall, but we can offset it if we like. */
+            float height = 0.1f * _border.YSize;
+            float ycenter = -_border.YRadius + height / 2.0f;
+            
+          //  wentThrough = true;
+            startNewRoom = Age;
+            adjustGameParameters();
+        }
+        public void setRoomBoss()
+        {
+            room1 = false;
+            room2 = false;
+            bossRoom = true;
+            Biota.purgeCritters("cCritterWall");
+            Biota.purgeCritters("cCritter3Dcharacter");
+            setBorder(60.0f, 30.0f, 70.0f);
+            cRealBox3 skeleton = new cRealBox3();
+            skeleton.copy(_border);
+            setSkyBox(skeleton);
+            SkyBox.setAllSidesTexture(BitmapRes.Fire, 1);
+            SkyBox.setSideTexture(cRealBox3.LOY, BitmapRes.Wall2);
+            SkyBox.setSideSolidColor(cRealBox3.HIY, Color.DimGray);
+            SkyBox.setSideTexture(cRealBox3.HIX, BitmapRes.Wall3);
+            _seedcount = 1;
+            monsterCount =_seedcount;
+            seedCritters();
+            Player.setMoveBox(new cRealBox3(60.0f, 30.0f, 70.0f));
             float zpos = 0.0f; /* Point on the z axis where we set down the wall.  0 would be center,
 			halfway down the hall, but we can offset it if we like. */
             float height = 0.1f * _border.YSize;
             float ycenter = -_border.YRadius + height / 2.0f;
             float wallthickness = cGame3D.WALLTHICKNESS;
-            cCritterWall pwall = new cCritterWall(
-                new cVector3(_border.Midx + 2.0f, ycenter, zpos),
-                new cVector3(_border.Hix, ycenter, zpos),
-                height, //thickness param for wall's dy which goes perpendicular to the 
-                //baseline established by the frist two args, up the screen 
-                wallthickness, //height argument for this wall's dz  goes into the screen 
-                this);
-            cSpriteTextureBox pspritebox =
-                new cSpriteTextureBox(pwall.Skeleton, BitmapRes.Wall3, 16); //Sets all sides 
+           
+           // cSpriteTextureBox pspritebox =
+              //  new cSpriteTextureBox(pwall.Skeleton, BitmapRes.Wall3, 16); //Sets all sides 
             /* We'll tile our sprites three times along the long sides, and on the
         short ends, we'll only tile them once, so we reset these two. */
-            pwall.Sprite = pspritebox;
-            wentThrough = true;
+           // pwall.Sprite = pspritebox;
+            //  wentThrough = true;
             startNewRoom = Age;
+            adjustGameParameters();
         }
-		
-		public override void seedCritters() 
+
+        public override void seedCritters() 
 		{
 			Biota.purgeCritters( "cCritterBullet" ); 
 			Biota.purgeCritters( "cCritter3Dcharacter" );
-            for (int i = 0; i < _seedcount; i++) 
-				new cCritter3Dcharacter( this );
+            if (room1 == true)
+            {
+                for (int i = 0; i < _seedcount; i++)
+                { new cCritterEnemyOne(this); }
+            }
+            else if (room2==true)
+            {
+                for (int i = 0; i < _seedcount; i++)
+                { new cCritterEnemyTwo(this); }
+            }
+            else
+            {
+                for (int i = 0; i < _seedcount; i++)
+                { new cCritterEnemyBoss(this); }
+            }
             Player.moveTo(new cVector3(0.0f, Border.Loy, Border.Hiz - 3.0f)); 
 				/* We start at hiz and move towards	loz */ 
-		} 
-
+	}
+	public void decrementMonsterCount()
+        {
+            monsterCount--;
+        }
+        public void incrementMonsterCount()
+        {
+            monsterCount++;
+        }
 		
 		public void setdoorcollision( ) { doorcollision = true; } 
 		
@@ -969,25 +1023,15 @@ namespace ACFramework
                     return;
                 }
 			} 
-		// (2) Also don't let the the model count diminish.
-					//(need to recheck propcount in case we just called seedCritters).
-			int modelcount = Biota.count( "cCritter3Dcharacter" ); 
-			int modelstoadd = _seedcount - modelcount; 
-			for ( int i = 0; i < modelstoadd; i++) 
-				new cCritter3Dcharacter( this ); 
-		// (3) Maybe check some other conditions.
-
-            if (wentThrough && (Age - startNewRoom) > 2.0f)
-            {
-                MessageBox.Show("What an idiot.");
-                wentThrough = false;
-            }
-
-            if (doorcollision == true)
-            {
-                setRoom1();
-                doorcollision = false;
-            }
+		if(monsterCount<=0 && room1==true)
+        	 {
+                setRoom2();
+               
+            	}
+           	else if(room2==true && monsterCount<=0)
+        	 {
+                setRoomBoss();
+            	}
 		} 
 		
 	} 
