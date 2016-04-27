@@ -442,7 +442,7 @@ namespace ACFramework
         int elapsed;
         Random rndRip;
         int ripState;
-        public cCritterEnemyTwo(cGame pownergame)
+                public cCritterEnemyTwo(cGame pownergame)
             : base(pownergame)
         {
             deathAnimation = new System.Timers.Timer();
@@ -451,11 +451,13 @@ namespace ACFramework
             addForce(new cForceGravity(25.0f, new cVector3(0.0f, -1, 0.00f)));
             addForce(new cForceDrag(20.0f));  // default friction strength 0.5 
             Health = 2;
+            _ageshoot = 0.0f;
             _bshooting = false;
-            WaitShoot = 15;
+            _waitshoot = 1f;
             Armed = true;
             Density = 1.0f;
             MaxSpeed = 22.0f;
+            _aimtoattitudelock = true;
             if (pownergame != null) //Just to be safe.
                 Sprite = new cSpriteQuake(ModelsMD2.Ranger);
 
@@ -506,13 +508,18 @@ namespace ACFramework
             base.update(pactiveview, dt); //Always call this first
             //if ( (_outcode & cRealBox3.BOX_HIZ) != 0 ) /* use bitwise AND to check if a flag is set. */ 
             //delete_me(); //tell the game to remove yourself if you fall up to the hiz.
+            aimAt(Player.Position);
             if (distanceTo(Player) <= 16)
             {
                 addForce(new cForceObjectSeek(Player, 0.9f));
             }
-            if (distanceTo(Player) > 10)
+            else if (distanceTo(Player) > 25)
             {
+                clearForcelist();
+                addForce(new cForceGravity(25.0f, new cVector3(0.0f, -1, 0.00f)));
+                addForce(new cForceDrag(20.0f));  // default friction strength 0.5 
                 _bshooting = true;
+                
             }
         }
 
