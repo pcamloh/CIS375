@@ -216,7 +216,34 @@ namespace ACFramework
             }
         }
 	} 
-	
+	class splitBullet: cCritterBullet
+    {
+        public splitBullet()
+        { }
+        public override cCritterBullet Create()
+        // has to be a Create function for every type of bullet -- JC
+        {
+            return new splitBullet();
+        }
+        public override void initialize(cCritterArmed pshooter)
+        {
+            base.initialize(pshooter);
+            Sprite = new cSpriteQuake(ModelsMD2.Sorb);
+            setRadius(0.4f);
+        }
+        public override bool IsKindOf(string str)
+        {
+            return str == "splitBullet" || base.IsKindOf(str);
+        }
+
+        public override string RuntimeClass
+        {
+            get
+            {
+                return "splitBullet";
+            }
+        }
+    }
 	class cCritter3Dcharacter : cCritter  
 	{
         System.Timers.Timer deathAnimation;
