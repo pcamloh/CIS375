@@ -648,7 +648,7 @@ namespace ACFramework
             Density = 2.0f;
             Health = 5;
             Armed = true;
-            MaxSpeed = 30.0f;
+            MaxSpeed = 19.0f;
             if (pownergame != null) //Just to be safe.
                 Sprite = new cSpriteQuake(ModelsMD2.Tyrant);
 
@@ -699,10 +699,22 @@ namespace ACFramework
             base.update(pactiveview, dt); //Always call this first
             //if ( (_outcode & cRealBox3.BOX_HIZ) != 0 ) /* use bitwise AND to check if a flag is set. */ 
             //delete_me(); //tell the game to remove yourself if you fall up to the hiz.
-
-            if (distanceTo(Player) <= 27)
+	    aimAt(Player.Position);
+	    this.rotateAttitude(Tangent.rotationAngle(AttitudeTangent));
+            if (distanceTo(Player)<=27)
             {
                 addForce(new cForceObjectSeek(Player, 0.4f));
+            }
+            if(distanceTo(Player)>=12)
+            {
+                BulletClass = new splitBullet();
+                _bshooting = true;
+            }
+            if (distanceTo(Player)<=3)
+            {
+                BulletClass = new cCritterBulletHyper(5);
+                _bshooting = true;
+
             }
 
         }
