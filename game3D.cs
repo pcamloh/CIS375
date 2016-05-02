@@ -136,7 +136,7 @@ namespace ACFramework
                     {
                         Framework.snd.play(Sound.Pain3);
                     }
-                    pcritter.die();
+                   
                 }
             }
             return true;
