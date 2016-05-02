@@ -355,8 +355,13 @@ namespace ACFramework
             bool pagedown = Framework.Keydev[vk.PageDown];
             bool strafeLeft = Framework.Keydev[vk.A];
             bool strafeRight = Framework.Keydev[vk.D];
+            bool godMode = Framework.Keydev[vk.G];
             if (pcritter.Health != 0)
             {
+                if (godMode)
+                {
+                        pcritter.godMode = true;
+                }
                 if (!_hopping && up)
                 {
                     pcritter.Sprite.ModelState = State.Run;

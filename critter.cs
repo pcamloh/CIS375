@@ -55,6 +55,7 @@ namespace ACFramework
         protected bool _usefixedlifetime; //If TRUE, then die when _age > _fixedlifetime.
         protected float _fixedlifetime; //Max lifetime in seconds, applies only if _usefixedlifetime.
         protected int _health; //Lose by being hit and taking damage().  Usually die when _health is 0.
+        protected bool _godMode;
         protected bool _shieldflag; //Immunity to being damage() calls.
         protected uint _personality; /* Random bits to sometimes use for making critters have different
 			behaviors, as when using evasion forces. */
@@ -184,6 +185,7 @@ namespace ACFramework
 			thinking they were just hit.  cCritter.SAFEWAIT is currently 0.3 seconds. */
             _oldrecentlydamaged = false; //Can use to notice when you need to change sprite.
             _health = STARTHEALTH; //Default 1.
+            _godMode = false;
             _usefixedlifetime = false;
             _fixedlifetime = FIXEDLIFETIME;
             _shieldflag = false;
@@ -269,6 +271,7 @@ namespace ACFramework
             _lasthit_age = pcritter._lasthit_age;
             _oldrecentlydamaged = pcritter._oldrecentlydamaged;
             _health = pcritter._health;
+            _godMode = pcritter._godMode;
             _usefixedlifetime = pcritter._usefixedlifetime;
             _fixedlifetime = pcritter._fixedlifetime;
             _shieldflag = pcritter._shieldflag;
@@ -1450,7 +1453,7 @@ namespace ACFramework
         public virtual int damage(int hitstrength)
         {
             // If we have our shield on, or were just hit, then don't allow a hit 
-            if (_shieldflag || recentlyDamaged())
+            if (_shieldflag || recentlyDamaged() || _godMode)
                 return 0;
             _lasthit_age = _age; //Save age for use by the recentlyDamaged() accessor.
             _health -= hitstrength;
@@ -1735,7 +1738,13 @@ namespace ACFramework
             set
             { _health = value; if (_health < 0) _health = 0; }
         }
-
+        public virtual bool godMode
+        {
+            get
+            { return _godMode; }
+            set
+            { _godMode = value; }
+        }
         /// <summary>
         /// Sets _newlevelreward, which is added to the health of the critter upon attaining a new level.
         /// </summary>
