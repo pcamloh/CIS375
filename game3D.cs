@@ -637,7 +637,7 @@ namespace ACFramework
             _bshooting = false;
             _waitshoot = 0.7f;
             Armed = true;
-            MaxSpeed = 30.0f;
+            MaxSpeed = 22.0f;
             if (pownergame != null) //Just to be safe.
                 Sprite = new cSpriteQuake(ModelsMD2.Tyrant);
 
@@ -698,9 +698,9 @@ namespace ACFramework
             	BulletClass = new splitBullet();
             	_bshooting=true;
             }
-            else if(distanceTo(Player)<=3)
+            else if(distanceTo(Player)<=5)
             {
-            	BulletClass = new cCritterBulletHyper();
+            	BulletClass = new cCritterBulletHyper(5);
             	_bshooting=true;
             }
 
