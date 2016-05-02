@@ -48,12 +48,10 @@ namespace ACFramework
         int elapsed;
         Random painSound;
         int pain;
-        public bool godMode;
         System.Timers.Timer animationCancel;
         public cCritter3DPlayer(cGame pownergame)
             : base(pownergame)
         {
-            godMode = false;
             animationCancel = new System.Timers.Timer();
             BulletClass = new cCritter3DPlayerBullet();
             elapsed = 0;
@@ -120,27 +118,25 @@ namespace ACFramework
                 }
                 else
                 {
-                    if (!pcritter.godMode)
+                    pain = painSound.Next(1, 4);
+                    damage(1);
+                    animationCancel.Interval = 100;
+                    Sprite.setstate(9, 0, 0, StateType.Hold);
+                    animationCancel.Start();
+                    animationCancel.Elapsed += new System.Timers.ElapsedEventHandler(interval_Tick);
+                    if (pain == 1)
                     {
-                        pain = painSound.Next(1, 4);
-                        damage(1);
-                        animationCancel.Interval = 100;
-                        Sprite.setstate(9, 0, 0, StateType.Hold);
-                        animationCancel.Start();
-                        animationCancel.Elapsed += new System.Timers.ElapsedEventHandler(interval_Tick);
-                        if (pain == 1)
-                        {
-                            Framework.snd.play(Sound.Pain1);
-                        }
-                        if (pain == 2)
-                        {
-                            Framework.snd.play(Sound.Pain2);
-                        }
-                        if (pain == 3)
-                        {
-                            Framework.snd.play(Sound.Pain3);
-                        }
+                        Framework.snd.play(Sound.Pain1);
                     }
+                    if (pain == 2)
+                    {
+                        Framework.snd.play(Sound.Pain2);
+                    }
+                    if (pain == 3)
+                    {
+                        Framework.snd.play(Sound.Pain3);
+                    }
+                    pcritter.die();
                 }
             }
             return true;
@@ -214,50 +210,14 @@ namespace ACFramework
             }
         }
     }
-    class splitBullet: cCritterBullet
-    {
-        public splitBullet()
-        { }
-        public override cCritterBullet Create()
-        // has to be a Create function for every type of bullet -- JC
-        {
-            return new splitBullet();
-        }
-        public override void initialize(cCritterArmed pshooter)
-        {
-            base.initialize(pshooter);
-            Sprite = new cSpriteQuake(ModelsMD2.Sorb);
-            setRadius(0.7f);
-        }
-        public override bool collide(cCritter pcritter)
-        {
-            bool success = base.collide(pcritter);
-            if (success && pcritter.IsKindOf("cCritter3DPlayer"))
-            {
-                ((cGame3D)Game).SeedCount = 1;
-                ((cGame3D)Game).seedCritters();
-            }
-            return success;
-        }
-        public override bool IsKindOf(string str)
-        {
-            return str == "splitBullet" || base.IsKindOf(str);
-        }
 
-        public override string RuntimeClass
-        {
-            get
-            {
-                return "splitBullet";
-            }
-        }
-    }
     class cCritter3Dcharacter : cCritter
     {
         System.Timers.Timer deathAnimation;
         int elapsed;
         Random rndRip;
         int ripState;
+        bool dead = false;
         public cCritter3Dcharacter(cGame pownergame)
             : base(pownergame)
         {
@@ -324,15 +284,20 @@ namespace ACFramework
 
         public override void die()
         {
-            Player.addScore(1);
-            ripState = rndRip.Next(0, 2);
-            deathAnimation.Interval = 100;
-            if (ripState == 0)
-                Sprite.setstate(State.FallbackDie, 0, 0, StateType.Hold);
-            else if (ripState == 1)
-                Sprite.setstate(State.FallForwardDie, 0, 0, StateType.Hold);
-            deathAnimation.Start();
-            deathAnimation.Elapsed += new System.Timers.ElapsedEventHandler(interval_Tick);
+            if (!dead)
+            {
+                dead = true;
+                Player.addScore(1);
+                ripState = rndRip.Next(0, 2);
+                deathAnimation.Interval = 100;
+                if (ripState == 0)
+                    Sprite.setstate(State.FallbackDie, 0, 0, StateType.Hold);
+                else if (ripState == 1)
+                    Sprite.setstate(State.FallForwardDie, 0, 0, StateType.Hold);
+                deathAnimation.Start();
+                deathAnimation.Elapsed += new System.Timers.ElapsedEventHandler(interval_Tick);
+                
+            }
         }
 
         private void interval_Tick(object sender, EventArgs e)
@@ -360,6 +325,7 @@ namespace ACFramework
     }
     class cCritterEnemyOne : cCritter3Dcharacter
     {
+        bool dead = false;
         System.Timers.Timer deathAnimation;
         int elapsed;
         Random rndRip;
@@ -437,17 +403,21 @@ namespace ACFramework
 
         public override void die()
         {
-            ripState = rndRip.Next(0, 2);
-            deathAnimation.Interval = 100;
-            if (ripState == 0)
-                Sprite.setstate(State.FallbackDie, 0, 0, StateType.Hold);
-            else if (ripState == 1)
-                Sprite.setstate(State.FallForwardDie, 0, 0, StateType.Hold);
-            deathAnimation.Start();
-            deathAnimation.Elapsed += new System.Timers.ElapsedEventHandler(interval_Tick);
-            Player.addScore(Value);
-            //base.die(); 
-            ((cGame3D)Game).decrementMonsterCount();
+            if (!dead)
+            {
+                dead = true;
+                ripState = rndRip.Next(0, 2);
+                deathAnimation.Interval = 100;
+                if (ripState == 0)
+                    Sprite.setstate(State.FallbackDie, 0, 0, StateType.Hold);
+                else if (ripState == 1)
+                    Sprite.setstate(State.FallForwardDie, 0, 0, StateType.Hold);
+                deathAnimation.Start();
+                deathAnimation.Elapsed += new System.Timers.ElapsedEventHandler(interval_Tick);
+                Player.addScore(Value);
+                //base.die(); 
+                ((cGame3D)Game).decrementMonsterCount();
+            }
         }
 
         private void interval_Tick(object sender, EventArgs e)
@@ -461,6 +431,8 @@ namespace ACFramework
                 base.die();
             }
         }
+
+
         public override bool IsKindOf(string str)
         {
             return str == "cCritter3Dcharacter" || base.IsKindOf(str);
@@ -479,6 +451,7 @@ namespace ACFramework
     }
     class cCritterEnemyTwo : cCritterArmed
     {
+        bool dead = false;
         System.Timers.Timer deathAnimation;
         int elapsed;
         Random rndRip;
@@ -493,16 +466,16 @@ namespace ACFramework
             if (positionIndex == -1)
             {
                 positionIndex = 0;
-                positions[0] = new cVector3(-10, -10, -30);
-                positions[1] = new cVector3(10, -10, 30);
-                positions[2] = new cVector3(30, -10, 50);
-                positions[3] = new cVector3(-30, -10, 30);
-                positions[4] = new cVector3(30, -10, -50);
-                positions[5] = new cVector3(50, -20, 50);
-                positions[6] = new cVector3(50, -20, -50);
-                positions[7] = new cVector3(69, -20, 69);
-                positions[8] = new cVector3(0, -20, 0);
-                positions[9] = new cVector3(75, -20, -75);
+                positions[0] = new cVector3(-10, -70, -30);
+                positions[1] = new cVector3(10, -70, 30);
+                positions[2] = new cVector3(30, -70, 50);
+                positions[3] = new cVector3(-30, -70, 30);
+                positions[4] = new cVector3(30, -70, -50);
+                positions[5] = new cVector3(50, -70, 50);
+                positions[6] = new cVector3(50, -70, -50);
+                positions[7] = new cVector3(69, -70, 69);
+                positions[8] = new cVector3(0, -70, 0);
+                positions[9] = new cVector3(75, -70, -75);
             }
 
             if (positionIndex == positions.Length) 
@@ -515,7 +488,7 @@ namespace ACFramework
             Health = 2;
             _ageshoot = 0.0f;
             _bshooting = false;
-            _waitshoot = 1f;
+            _waitshoot = 2.5f;
             Armed = true;
             Density = 1.0f;
             MaxSpeed = 22.0f;
@@ -591,17 +564,23 @@ namespace ACFramework
 
         public override void die()
         {
-            ripState = rndRip.Next(0, 2);
-            deathAnimation.Interval = 100;
-            if (ripState == 0)
-                Sprite.setstate(State.FallbackDie, 0, 0, StateType.Hold);
-            else if (ripState == 1)
-                Sprite.setstate(State.FallForwardDie, 0, 0, StateType.Hold);
-            deathAnimation.Start();
-            deathAnimation.Elapsed += new System.Timers.ElapsedEventHandler(interval_Tick);
-            Player.addScore(Value);
-            //base.die(); 
-            ((cGame3D)Game).decrementMonsterCount();
+            if (!dead)
+            {
+                dead = true;
+                ripState = rndRip.Next(0, 2);
+                deathAnimation.Interval = 100;
+                if (ripState == 0)
+                    Sprite.setstate(State.FallbackDie, 0, 0, StateType.Hold);
+                else if (ripState == 1)
+                    Sprite.setstate(State.FallForwardDie, 0, 0, StateType.Hold);
+                deathAnimation.Start();
+                deathAnimation.Elapsed += new System.Timers.ElapsedEventHandler(interval_Tick);
+                Player.addScore(Value);
+                //base.die(); 
+                ((cGame3D)Game).decrementMonsterCount();
+            }
+
+
         }
 
         private void interval_Tick(object sender, EventArgs e)
@@ -648,7 +627,7 @@ namespace ACFramework
             Density = 2.0f;
             Health = 5;
             Armed = true;
-            MaxSpeed = 19.0f;
+            MaxSpeed = 30.0f;
             if (pownergame != null) //Just to be safe.
                 Sprite = new cSpriteQuake(ModelsMD2.Tyrant);
 
@@ -699,22 +678,10 @@ namespace ACFramework
             base.update(pactiveview, dt); //Always call this first
             //if ( (_outcode & cRealBox3.BOX_HIZ) != 0 ) /* use bitwise AND to check if a flag is set. */ 
             //delete_me(); //tell the game to remove yourself if you fall up to the hiz.
-	    aimAt(Player.Position);
-	    this.rotateAttitude(Tangent.rotationAngle(AttitudeTangent));
-            if (distanceTo(Player)<=27)
+
+            if (distanceTo(Player) <= 27)
             {
                 addForce(new cForceObjectSeek(Player, 0.4f));
-            }
-            if(distanceTo(Player)>=12)
-            {
-                BulletClass = new splitBullet();
-                _bshooting = true;
-            }
-            if (distanceTo(Player)<=3)
-            {
-                BulletClass = new cCritterBulletHyper(5);
-                _bshooting = true;
-
             }
 
         }
@@ -841,25 +808,29 @@ namespace ACFramework
         public static readonly float WALLTHICKNESS = 0.5f;
         public static readonly float PLAYERRADIUS = 0.2f;
         public static readonly float MAXPLAYERSPEED = 30.0f;
-        System.Diagnostics.Stopwatch stopwatch;
+        System.Timers.Timer dieAnimation;
         private cCritterTreasure _ptreasure;
         private bool doorcollision;
         private bool wentThrough = false;
         private float startNewRoom;
         int elapsed;
+        bool endgame;
+        bool timerStart;
         private int monsterCount = 0;
         private bool room1 = true;
         private bool room2 = false;
         private bool bossRoom = false;
         public cGame3D()
         {
-            stopwatch = new System.Diagnostics.Stopwatch();
+            endgame = false;
+            timerStart = false;
             elapsed = 0;
             doorcollision = false;
             _menuflags &= ~cGame.MENU_BOUNCEWRAP;
             _menuflags |= cGame.MENU_HOPPER; //Turn on hopper listener option.
             _spritetype = cGame.ST_MESHSKIN;
             setBorder(64.0f, 16.0f, 64.0f); // size of the world
+            dieAnimation = new System.Timers.Timer();
             cRealBox3 skeleton = new cRealBox3();
             skeleton.copy(_border);
             setSkyBox(skeleton);
@@ -880,7 +851,22 @@ namespace ACFramework
             _seedcount = 7;
             setPlayer(new cCritter3DPlayer(this));
             _ptreasure = new cCritterTreasure(this);
-            monsterCount = _seedcount;
+            monsterCount = 7;
+            cCritterWall pwall2 = new cCritterPlatform(new cVector3(0, 0, 0), new cVector3(5, 0, 0), new cVector3(0, -5, 0), new cVector3(5, -5, 0), 200, 1.0f, 10.0f, this);
+            cSpriteTextureBox pspritebox2 =
+new cSpriteTextureBox(pwall2.Skeleton, Color.Firebrick); //Sets all sides 
+            /* We'll tile our sprites three times along the long sides, and on the
+        short ends, we'll only tile them once, so we reset these two. */
+            pwall2.Sprite = pspritebox2;
+            cCritterWall pwall3 = new cCritterPlatform(new cVector3(-5, 4, 0), new cVector3(-10, 4, 0), new cVector3(-5, 0, 0), new cVector3(-10, 0, 0), 100, 1.0f, 10.0f, this);
+            cSpriteTextureBox pspritebox3 =
+new cSpriteTextureBox(pwall2.Skeleton, Color.Firebrick); //Sets all sides 
+            /* We'll tile our sprites three times along the long sides, and on the
+        short ends, we'll only tile them once, so we reset these two. */
+            pwall3.Sprite = pspritebox3;
+
+
+
             /* In this world the x and y go left and up respectively, while z comes out of the screen.
         A wall views its "thickness" as in the y direction, which is up here, and its
         "height" as in the z direction, which is into the screen. */
@@ -944,7 +930,7 @@ namespace ACFramework
             SkyBox.setSideTexture(cRealBox3.LOY, BitmapRes.Wood2);
             SkyBox.setSideSolidColor(cRealBox3.HIY, Color.Firebrick);
             SkyBox.setSideTexture(cRealBox3.HIX, BitmapRes.Concrete);
-            _seedcount = 10;
+            _seedcount = 6;
             monsterCount = _seedcount;
             seedCritters();
 
@@ -969,10 +955,10 @@ namespace ACFramework
             cRealBox3 skeleton = new cRealBox3();
             skeleton.copy(_border);
             setSkyBox(skeleton);
-            SkyBox.setAllSidesTexture(BitmapRes.MyMixtape, 1);
-            SkyBox.setSideTexture(cRealBox3.LOY, BitmapRes.MyMixtape);
+            SkyBox.setAllSidesTexture(BitmapRes.Wall3, 1);
+            SkyBox.setSideTexture(cRealBox3.LOY, BitmapRes.Wall2);
             SkyBox.setSideSolidColor(cRealBox3.HIY, Color.DimGray);
-            SkyBox.setSideTexture(cRealBox3.HIX, BitmapRes.MyMixtape);
+            SkyBox.setSideTexture(cRealBox3.HIX, BitmapRes.Wall3);
             _seedcount = 1;
             monsterCount = _seedcount;
             seedCritters();
@@ -1063,6 +1049,17 @@ namespace ACFramework
                 }
             }
         }
+        private void interval_Tick(object sender, EventArgs e)
+        {
+            elapsed++;
+            if (elapsed % 3 == 0)
+            {
+                //System.Console.WriteLine("we've reached this part");
+                elapsed = 0;
+                endgame = true;
+                dieAnimation.Stop();
+            }
+        }
 
         public void setEndGame()
          {
@@ -1077,21 +1074,21 @@ namespace ACFramework
             if ((Health == 0) && !_gameover) //Player's been killed and game's not over.
             {
                 //_gameover = true;
-                Biota.purgeNonPlayerCritters();
+                dieAnimation.Interval = 100;
                 Framework.snd.play(Sound.Death3);
                 Player.Sprite.ModelState = State.FallbackDie;
-                if (!stopwatch.IsRunning)
+                if (!timerStart)
                 {
-                    stopwatch.Start();
+                    dieAnimation.Start();
                 }
-                while (stopwatch.ElapsedMilliseconds < 300)
+                dieAnimation.Elapsed += new System.Timers.ElapsedEventHandler(interval_Tick);
+                if (endgame == true)
                 {
-                    return;
-                }
                     _gameover = true;
                     Player.addScore(_scorecorrection); // So user can reach _maxscore  
                     Framework.snd.play(Sound.Hallelujah);
                     return;
+                }
             }
             if (monsterCount <= 0 && room1 == true)
             {
