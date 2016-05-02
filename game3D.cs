@@ -698,8 +698,9 @@ namespace ACFramework
             	BulletClass = new splitBullet();
             	_bshooting=true;
             }
-            else if(distanceTo(Player)<=1)
+            else if(distanceTo(Player)<=3)
             {
+            	BulletClass = new cCritterBulletHyper();
             	_bshooting=true;
             }
 
