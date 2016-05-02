@@ -37,6 +37,7 @@ namespace ACFramework
         public static readonly int Floor = 9;
         public static readonly int Walls = 10;
         public static readonly int FlipWall = 11;
+        public static readonly int MyMixtape = 12;
         
 
         private static readonly string[] Bitmap = new string[] {
@@ -51,7 +52,8 @@ namespace ACFramework
                 "concrete1.bmp",
                 "metal1.bmp",
                 "wall5.bmp",
-                "wall3flipped.bmp"
+                "wall3flipped.bmp",
+                "fire.bmp"
             };
 
         public BitmapRes()
@@ -282,6 +284,7 @@ namespace ACFramework
         public static readonly int A = 16;
         public static readonly int S = 17;
         public static readonly int D = 18;
+        public static readonly int G = 19;
 
         public static Key[] key;
 
@@ -305,7 +308,8 @@ namespace ACFramework
                 Key.W,
                 Key.A,
                 Key.S,
-                Key.D
+                Key.D,
+                Key.G
             };
 
         }
