@@ -530,7 +530,7 @@ namespace ACFramework
         {
             base.update(pactiveview, dt); //Always call this first
             //if ( (_outcode & cRealBox3.BOX_HIZ) != 0 ) /* use bitwise AND to check if a flag is set. */ 
-            //delete_me(); //tell the game to remove yourself if you fall up to the hiz.
+            this.rotateAttitude(Tangent.rotationAngle(AttitudeTangent));
             aimAt(Player.Position);
             if (distanceTo(Player) <= 16)
             {
@@ -606,6 +606,9 @@ namespace ACFramework
             addForce(new cForceDrag(20.0f));  // default friction strength 0.5 
             Density = 2.0f;
             Health = 5;
+            _ageshoot = 0.0f;
+            _bshooting = false;
+            _waitshoot = 0.7f;
             Armed = true;
             MaxSpeed = 30.0f;
             if (pownergame != null) //Just to be safe.
@@ -657,11 +660,20 @@ namespace ACFramework
         {
             base.update(pactiveview, dt); //Always call this first
             //if ( (_outcode & cRealBox3.BOX_HIZ) != 0 ) /* use bitwise AND to check if a flag is set. */ 
-            //delete_me(); //tell the game to remove yourself if you fall up to the hiz.
-
+            this.rotateAttitude(Tangent.rotationAngle(AttitudeTangent));
+	    aimAt(Player.Position);
             if (distanceTo(Player) <= 27)
             {
                 addForce(new cForceObjectSeek(Player, 0.4f));
+            }
+            if(distanceTo(Player)>=5)
+            {
+            	BulletClass = new splitBullet();
+            	_bshooting=true;
+            }
+            else if(distanceTo(Player)<=1)
+            {
+            	_bshooting=true;
             }
 
         }
