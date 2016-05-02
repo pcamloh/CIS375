@@ -214,7 +214,44 @@ namespace ACFramework
             }
         }
     }
+    class splitBullet: cCritterBullet
+    {
+        public splitBullet()
+        { }
+        public override cCritterBullet Create()
+        // has to be a Create function for every type of bullet -- JC
+        {
+            return new splitBullet();
+        }
+        public override void initialize(cCritterArmed pshooter)
+        {
+            base.initialize(pshooter);
+            Sprite = new cSpriteQuake(ModelsMD2.Sorb);
+            setRadius(0.7f);
+        }
+        public override bool collide(cCritter pcritter)
+        {
+            bool success = base.collide(pcritter);
+            if (success && pcritter.IsKindOf("cCritter3DPlayer"))
+            {
+                ((cGame3D)Game).SeedCount = 1;
+                ((cGame3D)Game).seedCritters();
+            }
+            return success;
+        }
+        public override bool IsKindOf(string str)
+        {
+            return str == "splitBullet" || base.IsKindOf(str);
+        }
 
+        public override string RuntimeClass
+        {
+            get
+            {
+                return "splitBullet";
+            }
+        }
+    }
     class cCritter3Dcharacter : cCritter
     {
         System.Timers.Timer deathAnimation;
