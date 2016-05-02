@@ -920,10 +920,10 @@ namespace ACFramework
             cRealBox3 skeleton = new cRealBox3();
             skeleton.copy(_border);
             setSkyBox(skeleton);
-            SkyBox.setAllSidesTexture(BitmapRes.Wall3, 1);
-            SkyBox.setSideTexture(cRealBox3.LOY, BitmapRes.Wall2);
+            SkyBox.setAllSidesTexture(BitmapRes.MyMixtape, 1);
+            SkyBox.setSideTexture(cRealBox3.LOY, BitmapRes.MyMixtape);
             SkyBox.setSideSolidColor(cRealBox3.HIY, Color.DimGray);
-            SkyBox.setSideTexture(cRealBox3.HIX, BitmapRes.Wall3);
+            SkyBox.setSideTexture(cRealBox3.HIX, BitmapRes.MyMixtape);
             _seedcount = 1;
             monsterCount = _seedcount;
             seedCritters();
