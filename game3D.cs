@@ -48,10 +48,12 @@ namespace ACFramework
         int elapsed;
         Random painSound;
         int pain;
+        public bool godMode;
         System.Timers.Timer animationCancel;
         public cCritter3DPlayer(cGame pownergame)
             : base(pownergame)
         {
+            godMode = false;
             animationCancel = new System.Timers.Timer();
             BulletClass = new cCritter3DPlayerBullet();
             elapsed = 0;
@@ -118,25 +120,27 @@ namespace ACFramework
                 }
                 else
                 {
-                    pain = painSound.Next(1, 4);
-                    damage(1);
-                    animationCancel.Interval = 100;
-                    Sprite.setstate(9, 0, 0, StateType.Hold);
-                    animationCancel.Start();
-                    animationCancel.Elapsed += new System.Timers.ElapsedEventHandler(interval_Tick);
-                    if (pain == 1)
+                    if (!pcritter.godMode)
                     {
-                        Framework.snd.play(Sound.Pain1);
+                        pain = painSound.Next(1, 4);
+                        damage(1);
+                        animationCancel.Interval = 100;
+                        Sprite.setstate(9, 0, 0, StateType.Hold);
+                        animationCancel.Start();
+                        animationCancel.Elapsed += new System.Timers.ElapsedEventHandler(interval_Tick);
+                        if (pain == 1)
+                        {
+                            Framework.snd.play(Sound.Pain1);
+                        }
+                        if (pain == 2)
+                        {
+                            Framework.snd.play(Sound.Pain2);
+                        }
+                        if (pain == 3)
+                        {
+                            Framework.snd.play(Sound.Pain3);
+                        }
                     }
-                    if (pain == 2)
-                    {
-                        Framework.snd.play(Sound.Pain2);
-                    }
-                    if (pain == 3)
-                    {
-                        Framework.snd.play(Sound.Pain3);
-                    }
-                   
                 }
             }
             return true;
@@ -210,34 +214,7 @@ namespace ACFramework
             }
         }
     }
-    class splitBullet: cCritterBullet
-    {
-        public splitBullet()
-        { }
-        public override cCritterBullet Create()
-        // has to be a Create function for every type of bullet -- JC
-        {
-            return new splitBullet();
-        }
-        public override void initialize(cCritterArmed pshooter)
-        {
-            base.initialize(pshooter);
-            Sprite = new cSpriteQuake(ModelsMD2.Sorb);
-            setRadius(0.7f);
-        }
-        public override bool IsKindOf(string str)
-        {
-            return str == "splitBullet" || base.IsKindOf(str);
-        }
 
-        public override string RuntimeClass
-        {
-            get
-            {
-                return "splitBullet";
-            }
-        }
-    }
     class cCritter3Dcharacter : cCritter
     {
         System.Timers.Timer deathAnimation;
@@ -557,7 +534,7 @@ namespace ACFramework
         {
             base.update(pactiveview, dt); //Always call this first
             //if ( (_outcode & cRealBox3.BOX_HIZ) != 0 ) /* use bitwise AND to check if a flag is set. */ 
-            this.rotateAttitude(Tangent.rotationAngle(AttitudeTangent));
+            //delete_me(); //tell the game to remove yourself if you fall up to the hiz.
             aimAt(Player.Position);
             if (distanceTo(Player) <= 16)
             {
@@ -633,11 +610,8 @@ namespace ACFramework
             addForce(new cForceDrag(20.0f));  // default friction strength 0.5 
             Density = 2.0f;
             Health = 5;
-            _ageshoot = 0.0f;
-            _bshooting = false;
-            _waitshoot = 0.7f;
             Armed = true;
-            MaxSpeed = 22.0f;
+            MaxSpeed = 30.0f;
             if (pownergame != null) //Just to be safe.
                 Sprite = new cSpriteQuake(ModelsMD2.Tyrant);
 
@@ -687,21 +661,11 @@ namespace ACFramework
         {
             base.update(pactiveview, dt); //Always call this first
             //if ( (_outcode & cRealBox3.BOX_HIZ) != 0 ) /* use bitwise AND to check if a flag is set. */ 
-            this.rotateAttitude(Tangent.rotationAngle(AttitudeTangent));
-	    aimAt(Player.Position);
+            //delete_me(); //tell the game to remove yourself if you fall up to the hiz.
+
             if (distanceTo(Player) <= 27)
             {
                 addForce(new cForceObjectSeek(Player, 0.4f));
-            }
-            if(distanceTo(Player)>=5)
-            {
-            	BulletClass = new splitBullet();
-            	_bshooting=true;
-            }
-            else if(distanceTo(Player)<=5)
-            {
-            	BulletClass = new cCritterBulletHyper(5);
-            	_bshooting=true;
             }
 
         }
@@ -828,29 +792,25 @@ namespace ACFramework
         public static readonly float WALLTHICKNESS = 0.5f;
         public static readonly float PLAYERRADIUS = 0.2f;
         public static readonly float MAXPLAYERSPEED = 30.0f;
-        System.Timers.Timer dieAnimation;
+        System.Diagnostics.Stopwatch stopwatch;
         private cCritterTreasure _ptreasure;
         private bool doorcollision;
         private bool wentThrough = false;
         private float startNewRoom;
         int elapsed;
-        bool endgame;
-        bool timerStart;
         private int monsterCount = 0;
         private bool room1 = true;
         private bool room2 = false;
         private bool bossRoom = false;
         public cGame3D()
         {
-            endgame = false;
-            timerStart = false;
+            stopwatch = new System.Diagnostics.Stopwatch();
             elapsed = 0;
             doorcollision = false;
             _menuflags &= ~cGame.MENU_BOUNCEWRAP;
             _menuflags |= cGame.MENU_HOPPER; //Turn on hopper listener option.
             _spritetype = cGame.ST_MESHSKIN;
             setBorder(64.0f, 16.0f, 64.0f); // size of the world
-            dieAnimation = new System.Timers.Timer();
             cRealBox3 skeleton = new cRealBox3();
             skeleton.copy(_border);
             setSkyBox(skeleton);
@@ -1054,17 +1014,6 @@ namespace ACFramework
                 }
             }
         }
-        private void interval_Tick(object sender, EventArgs e)
-        {
-            elapsed++;
-            if (elapsed % 3 == 0)
-            {
-                //System.Console.WriteLine("we've reached this part");
-                elapsed = 0;
-                endgame = true;
-                dieAnimation.Stop();
-            }
-        }
 
         public void setEndGame()
          {
@@ -1079,21 +1028,21 @@ namespace ACFramework
             if ((Health == 0) && !_gameover) //Player's been killed and game's not over.
             {
                 //_gameover = true;
-                dieAnimation.Interval = 100;
+                Biota.purgeNonPlayerCritters();
                 Framework.snd.play(Sound.Death3);
                 Player.Sprite.ModelState = State.FallbackDie;
-                if (!timerStart)
+                if (!stopwatch.IsRunning)
                 {
-                    dieAnimation.Start();
+                    stopwatch.Start();
                 }
-                dieAnimation.Elapsed += new System.Timers.ElapsedEventHandler(interval_Tick);
-                if (endgame == true)
+                while (stopwatch.ElapsedMilliseconds < 300)
                 {
+                    return;
+                }
                     _gameover = true;
                     Player.addScore(_scorecorrection); // So user can reach _maxscore  
                     Framework.snd.play(Sound.Hallelujah);
                     return;
-                }
             }
             if (monsterCount <= 0 && room1 == true)
             {
